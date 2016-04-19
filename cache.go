@@ -68,11 +68,12 @@ func (cache *Cache) startExpirationProcessing() {
 
 		select {
 		case <-time.After(cache.expirationTime.Sub(time.Now())):
+			cache.mutex.Lock()
 			if cache.priorityQueue.Len() == 0 {
+				cache.mutex.Unlock()
 				continue
 			}
 
-			cache.mutex.Lock()
 			item := cache.priorityQueue.items[0]
 
 			if !item.expired() {
