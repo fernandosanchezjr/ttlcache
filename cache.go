@@ -37,11 +37,9 @@ func (cache *Cache) getItem(key string) (*item, bool) {
 		if cache.ttl > 0 && item.ttl == 0 {
 			item.ttl = cache.ttl
 		}
-		if !exists {
-			item.touch()
-			cache.priorityQueue.update(item)
-			cache.expirationNotificationTrigger(item)
-		}
+		item.touch()
+		cache.priorityQueue.update(item)
+		cache.expirationNotificationTrigger(item)
 	}
 
 	cache.mutex.Unlock()
@@ -84,8 +82,8 @@ func (cache *Cache) startExpirationProcessing() {
 
 			if cache.checkExpireCallback != nil {
 				if !cache.checkExpireCallback(item.key, item.data) {
-					//item.touch()
-					//cache.priorityQueue.update(item)
+					item.touch()
+					cache.priorityQueue.update(item)
 					cache.mutex.Unlock()
 					continue
 				}
